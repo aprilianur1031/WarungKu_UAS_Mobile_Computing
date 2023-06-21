@@ -9,7 +9,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.example.warungku.adapter.UserAdapter
 import com.example.warungku.data.AppDatabase
 import com.example.warungku.data.entity.User
@@ -32,16 +31,34 @@ class MainActivity : AppCompatActivity() {
         adapter = UserAdapter(list)
         adapter.setDialog(object : UserAdapter.Dialog{
             override fun onClick(position: Int) {
+                // membuat dialog view
                 val dialog = AlertDialog.Builder(this@MainActivity)
                 dialog.setTitle(list[position].productName)
-                dialog.setItems(R.array.items_option, DialogInterface.OnClickListener{ dialog}, which ->)
+                dialog.setItems(R.array.items_option, DialogInterface.OnClickListener{ dialog, which ->
+                    if (which==0){
+                        // coding ubah
+                        val intent = Intent(this@MainActivity, EditorActivity::class.java)
+                        intent.putExtra("id", list[position].uid)
+                        startActivity(intent)
+                    } else if (which==1) {
+                        // coding hapus
+                        database.userDao().delete(list[position])
+                        getData()
+                    } else {
+                        // coding batal
+                        dialog.dismiss()
+                    }
+                })
+                // menampilkan dialog
+                val dialogView = dialog.create()
+                dialogView.show()
             }
 
         })
 
         recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(applicationContext, VERTICAL, false)
-        recyclerView.addItemDecoration(DividerItemDecoration(applicationContext, VERTICAL))
+        recyclerView.layoutManager = LinearLayoutManager(applicationContext, RecyclerView.VERTICAL, false)
+        recyclerView.addItemDecoration(DividerItemDecoration(applicationContext, RecyclerView.VERTICAL))
 
         fab.setOnClickListener {
             startActivity(Intent(this, EditorActivity::class.java))

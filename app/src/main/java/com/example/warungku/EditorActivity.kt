@@ -27,9 +27,34 @@ class EditorActivity : AppCompatActivity() {
 
         database = AppDatabase.getInstance(applicationContext)
 
+        val intent = intent.extras
+        if (intent!=null){
+            val id = intent.getInt("id", 0)
+            val user = database.userDao().get(id)
+
+            productCode.setText(user.productCode)
+            productName.setText(user.productName)
+            price.setText(user.price)
+            stock.setText(user.stock)
+
+        }
+
         btnSave.setOnClickListener {
             if (productCode.text.isNotEmpty() && productName.text.isNotEmpty() && price.text.isNotEmpty() && stock.text.isNotEmpty()){
+                if (intent!=null){
+                    // coding edit data
+                    database.userDao().update(
+                        User(
+                            intent.getInt("id", 0),
+                            productCode.text.toString(),
+                            productName.text.toString(),
+                            price.text.toString(),
+                            stock.text.toString()
+                        )
 
+                    )
+                } else {
+                    // coding tambah data
                     database.userDao().insertAll(
                         User(
                             null,
@@ -37,8 +62,9 @@ class EditorActivity : AppCompatActivity() {
                             productName.text.toString(),
                             price.text.toString(),
                             stock.text.toString()
-                        ))
-
+                        )
+                    )
+                }
                 finish()
             } else {
                 Toast.makeText(applicationContext, "Silahkan isi semua data dengan valid", Toast.LENGTH_SHORT).show()
